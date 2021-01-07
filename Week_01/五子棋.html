@@ -1,0 +1,144 @@
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .cell {
+        display: inline-block;
+
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        font-size: 20px;
+
+        vertical-align: middle;
+        text-align: center;
+        cursor: pointer;
+
+        color: red;
+        border: 1px solid white;
+        background-color: whitesmoke;
+    }
+</style>
+
+<body>
+<div id='btn'></div>
+</body>
+
+<script>
+    let pattern = [
+        [2, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    let watch = 1;
+
+    let divEle = document.getElementById('btn');
+
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 10; j++) {
+            let cDiv = document.createElement('div');
+            cDiv.classList.add('cell');
+            cDiv.innerHTML = pattern[i][j] === 2 ? 'X' : (pattern[i][j] === 1 ? 'O' : '');
+            cDiv.addEventListener('click', () => {
+                choice(i, j, cDiv);
+            });
+            divEle.append(cDiv);
+        }
+        divEle.append(document.createElement('br'));
+    }
+
+    choice = (i, j, divElement) => {
+        if (divElement.innerHTML) {
+            return;
+        }
+        pattern[i][j] = watch;
+        watch = 3 - watch;
+        divElement.innerHTML = pattern[i][j] === 2 ? 'X' : 'O';
+
+        // 做出判断点击完某个格子，是否已经成功。
+        let result = judge(pattern, i, j);
+        if (result) {
+            alert('congratulation, U win !!!');
+        }
+    };
+
+    judge = (pattern, i, j) => {
+        let result = false;
+        // 如果是横向的成功
+        for (let ii = 0; ii < 5; ii++) {
+            if (j - ii >= 0 && j + 4 - ii <= 9) {
+                let res1 = pattern[i][j - ii] === pattern[i][j + 1 - ii];
+                let res2 = pattern[i][j + 1 - ii] === pattern[i][j + 2 - ii];
+                let res3 = pattern[i][j + 2 - ii] === pattern[i][j + 3 - ii];
+                let res4 = pattern[i][j + 3 - ii] === pattern[i][j + 4 - ii];
+                result = res1 && res2 && res3 && res4;
+                if (result) {
+                    break;
+                }
+            }
+        }
+        // 如果是纵向的成功
+        if (!result) {
+            for (let ii = 0; ii < 5; ii++) {
+                if (i - ii >= 0 && i + 4 - ii <= 9) {
+                    let res1 = pattern[i - ii][j] === pattern[i + 1 - ii][j];
+                    let res2 = pattern[i + 1 - ii][j] === pattern[i + 2 - ii][j];
+                    let res3 = pattern[i + 2 - ii][j] === pattern[i + 3 - ii][j];
+                    let res4 = pattern[i + 3 - ii][j] === pattern[i + 4 - ii][j];
+                    result = res1 && res2 && res3 && res4;
+                    if (result) {
+                        break;
+                    }
+                }
+            }
+        }
+        // 如果是斜向'\'
+        if (!result) {
+            for (let ii = 0; ii < 5; ii++) {
+                if (i - ii >= 0 &&
+                    j - ii >= 0 &&
+                    i + 4 - ii <= 9 &&
+                    j + 4 - ii <= 9) {
+                    let res1 = pattern[i - ii][j - ii] === pattern[i + 1 - ii][j + 1 - ii];
+                    let res2 = pattern[i + 1 - ii][j + 1 - ii] === pattern[i + 2 - ii][j + 2 - ii];
+                    let res3 = pattern[i + 2 - ii][j + 2 - ii] === pattern[i + 3 - ii][j + 3 - ii];
+                    let res4 = pattern[i + 3 - ii][j + 3 - ii] === pattern[i + 4 - ii][j + 4 - ii];
+                    result = res1 && res2 && res3 && res4;
+                    if (result) {
+                        break;
+                    }
+                }
+            }
+        }
+        // 如果是斜向'/'
+        if (!result) {
+            for (let ii = 0; ii < 5; ii++) {
+                if (i - ii >= 0 &&
+                    i + 4 - ii <= 9 &&
+                    j + ii <= 9 &&
+                    j - 4 + ii >= 0) {
+                    let res1 = pattern[i - ii][j + ii] === pattern[i + 1 - ii][j - 1 + ii];
+                    let res2 = pattern[i + 1 - ii][j - 1 + ii] === pattern[i + 2 - ii][j - 2 + ii];
+                    let res3 = pattern[i + 2 - ii][j - 2 + ii] === pattern[i + 3 - ii][j - 3 + ii];
+                    let res4 = pattern[i + 3 - ii][j - 3 + ii] === pattern[i + 4 - ii][j - 4 + ii];
+                    result = res1 && res2 && res3 && res4;
+                    if (result) {
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+</script>

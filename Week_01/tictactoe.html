@@ -1,0 +1,87 @@
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .cell {
+        display: inline-block;
+
+        width: 100px;
+        height: 100px;
+        line-height: 100px;
+        font-size: 50px;
+
+        vertical-align: middle;
+        text-align: center;
+        cursor: pointer;
+
+        border: 1px solid white;
+        background-color: whitesmoke;
+    }
+</style>
+
+<body>
+<div id='btn'></div>
+</body>
+
+<script>
+    let pattern = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+    ];
+
+    let watch = 1;
+
+    let divEle = document.getElementById('btn');
+
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            let cDiv = document.createElement('div');
+            cDiv.classList.add('cell');
+            cDiv.innerHTML = pattern[i][j] === 2 ? 'X' : (pattern[i][j] === 1 ? 'O' : '');
+            cDiv.addEventListener('click', () => {
+                choice(i, j, cDiv);
+            });
+            divEle.append(cDiv);
+        }
+        divEle.append(document.createElement('br'));
+    }
+
+    choice = (i, j, divElement) => {
+        if (divElement.innerHTML) {
+            return;
+        }
+        pattern[i][j] = watch;
+        watch = 3 - watch;
+        divElement.innerHTML = pattern[i][j] === 2 ? 'X' : 'O';
+
+        // 做出判断点击完某个格子，是否已经成功。
+        let result = judge();
+        if (result) {
+            alert('congratulation, U win !!!');
+        }
+    };
+
+    judge = () => {
+        let result = false;
+        for (let ii = 0; ii < 3; ii++) {
+            let result1 = pattern[ii][0] === pattern[ii][1] && pattern[ii][0] === pattern[ii][2];
+            let result2 = pattern[0][ii] === pattern[1][ii] && pattern[0][ii] === pattern[2][ii];
+            if ((result1 && pattern[ii][0]) || (result2 && pattern[0][ii])) {
+                result = true;
+                break;
+            }
+        }
+        if (!result) {
+            let result1 = pattern[0][0] === pattern[1][1] && pattern[0][0] === pattern[2][2];
+            let result2 = pattern[0][2] === pattern[1][1] && pattern[0][2] === pattern[2][0];
+            if ((result1 && pattern[0][0]) || (result2 && pattern[0][2])) {
+                result = true;
+            }
+        }
+        return result;
+    }
+</script>
