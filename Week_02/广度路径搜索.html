@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    <tbody id="table-body">
+    </tbody>
+</table>
+
+<div style="margin-top: 10px;">
+    <button onclick="saveMap();">保存地图</button>
+    <button onclick="initDefault();">初始化</button>
+</div>
+
+</body>
+
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    .cell {
+        height: 5px;
+        width: 5px;
+
+        line-height: 6px;
+        vertical-align: middle;
+        border: 1px solid aquamarine;
+
+        box-sizing: border-box;
+    }
+</style>
+<script>
+    const storageMapString = localStorage.getItem('map');
+    let map = storageMapString ? JSON.parse(storageMapString) : Array(100 * 100).fill(0);
+
+    initMap = () => {
+        let isRightMouseDown = false;
+        const containerElement = document.getElementById('table-body');
+        for (let x = 0; x < 100; x++) {
+            const xElement = document.createElement('tr');
+            for (let y = 0; y < 100; y++) {
+                const cell = document.createElement('td');
+                cell.classList.add('cell');
+                if (map[100 * y + x]) {
+                    cell.style.backgroundColor = 'black';
+                }
+                cell.addEventListener('mousemove', () => {
+                    if (isRightMouseDown) {
+                        cell.style.backgroundColor = 'black';
+                        map[100 * y + x] = 1;
+                    }
+                });
+                xElement.append(cell);
+            }
+            containerElement.append(xElement);
+        }
+        document.addEventListener('mousedown', (event) => {
+            isRightMouseDown = event.which === 3;
+        });
+        document.addEventListener('mouseup', (event) => {
+            isRightMouseDown = false;
+        });
+        document.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        })
+    };
+
+    saveMap = () => {
+        localStorage.setItem('map', JSON.stringify(map));
+    };
+
+    initDefault = () => {
+        map = Array(100 * 100).fill(0);
+        localStorage.setItem('map', '');
+        location.reload();
+    };
+
+    async function sleep(time) {
+        return new Promise(resolve => {
+            setTimeout(resolve, time);
+        })
+    }
+
+    async function searchPath(start, end) {
+        const queue = [start];
+
+        const tdElement = document.getElementsByTagName('td');
+        async function insertNode(t_x, t_y, tQueue, pre) {
+            if (t_x < 0 || t_x >= 100 || t_y < 0 || t_y >= 100)
+                return;
+
+            if (map[100 * t_y + t_x])
+                return;
+
+            // await sleep(5);
+            tdElement[100 * t_x + t_y].style.backgroundColor = 'red';
+            map[100 * t_y + t_x] = pre;
+            tQueue.push([t_x, t_y]);
+        }
+
+        while (true) {
+            let [x, y] = queue.shift();
+
+            if (x === end[0] && y === end[1]) {
+                let path = [];
+                while (x !== start[0] || y !== start[1]) {
+                    path.push(100 * y + x);
+                    [x, y] = map[100 * y + x];
+                    tdElement[100 * x + y].style.backgroundColor = 'yellow';
+                }
+                return true;
+            }
+
+            await insertNode(x + 1, y, queue, [x, y]);
+            await insertNode(x - 1, y, queue, [x, y]);
+            await insertNode(x, y + 1, queue, [x, y]);
+            await insertNode(x, y - 1, queue, [x, y]);
+
+            await insertNode(x - 1, y - 1, queue, [x, y]);
+            await insertNode(x + 1, y + 1, queue, [x, y]);
+            await insertNode(x - 1, y + 1, queue, [x, y]);
+            await insertNode(x + 1, y - 1, queue, [x, y]);
+        }
+    }
+
+    initMap();
+
+
+</script>
+</html>

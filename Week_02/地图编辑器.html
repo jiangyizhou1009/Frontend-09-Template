@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    <tbody id="table-body">
+    </tbody>
+</table>
+
+<div style="margin-top: 10px;">
+    <button onclick="saveMap();">保存地图</button>
+    <button onclick="initDefault();">初始化</button>
+</div>
+
+</body>
+
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    .cell {
+        height: 6px;
+        width: 6px;
+
+        line-height: 5px;
+        vertical-align: middle;
+        border: 1px solid aquamarine;
+
+        box-sizing: border-box;
+    }
+</style>
+<script>
+    const storageMapString = localStorage.getItem('map');
+    let map = storageMapString ? JSON.parse(storageMapString) : Array(100 * 100).fill(0);
+    initMap = () => {
+        let isRightMouseDown = false;
+        const containerElement = document.getElementById('table-body');
+        for (let x = 0; x < 100; x++) {
+            const xElement = document.createElement('tr');
+            for (let y = 0; y < 100; y++) {
+                const cell = document.createElement('td');
+                cell.classList.add('cell');
+                if (map[100 * y + x]) {
+                    cell.style.backgroundColor = 'black';
+                }
+                cell.addEventListener('mousemove', () => {
+                    if (isRightMouseDown) {
+                        cell.style.backgroundColor = 'black';
+                        map[100 * y + x] = 1;
+                    }
+                });
+                xElement.append(cell);
+            }
+            containerElement.append(xElement);
+        }
+        document.addEventListener('mousedown', (event) => {
+            isRightMouseDown = event.which === 3;
+        });
+        document.addEventListener('mouseup', (event) => {
+            isRightMouseDown = false;
+        });
+        document.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        })
+    };
+    saveMap = () => {
+        localStorage.setItem('map', JSON.stringify(map));
+    };
+    initDefault = () => {
+        map = Array(100 * 100).fill(0);
+        localStorage.setItem('map', '');
+        location.reload();
+    };
+
+    initMap();
+</script>
+</html>
