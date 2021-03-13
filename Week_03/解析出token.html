@@ -1,0 +1,24 @@
+<script>
+    let regExp = /([0-9\.]+)|([ \t]+)|([\r\n]+)|(\*)|(\/)|(\+)(\-)/g
+    let dictionary = ['Number', 'Whitespace', 'LineTerminator', '*', '/', '+', '-'];
+
+    let arr = [];
+    function tokenize(source) {
+        let result = null;
+
+        while (true) {
+            result = regExp.exec(source);
+
+            if (!result) break;
+
+            for (let i = 1; i < dictionary.length; i++) {
+                if (result[i])
+                    if (dictionary[i - 1] !== 'Whitespace' && dictionary[i - 1] !== 'Whitespace')
+                        arr.push({ type: dictionary[i - 1], value: result[i]});
+            }
+        }
+    }
+
+    tokenize('1024 + 5 * 15');
+    console.log(arr);
+</script>
